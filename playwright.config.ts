@@ -34,18 +34,17 @@ export default defineConfig({
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
 
     // Logged-OUT tests (auth gating, public pages, negative paths).
-    {
+{
       name: 'public',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /tests[\\/](tier1|tier4)[\\/]/,
+      testMatch: [/tests[\\/]tier1[\\/]/, /tests[\\/]tier4[\\/]/, /unverified-send-block/],
     },
-
-    // Authenticated tests (business flows) reuse the saved session.
     {
       name: 'authenticated',
       use: { ...devices['Desktop Chrome'], storageState: '.auth/user.json' },
       dependencies: ['setup'],
       testMatch: /tests[\\/](tier2|tier3)[\\/]/,
+      testIgnore: /unverified-send-block/,
     },
   ],
 });
