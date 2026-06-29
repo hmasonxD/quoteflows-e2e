@@ -29,5 +29,23 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    // Logs in once, saves session for the authenticated project.
+    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+
+    // Logged-OUT tests (auth gating, public pages, negative paths).
+    {
+      name: 'public',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /tests[\\/](tier1|tier4)[\\/]/,
+    },
+
+    // Authenticated tests (business flows) reuse the saved session.
+    {
+      name: 'authenticated',
+      use: { ...devices['Desktop Chrome'], storageState: '.auth/user.json' },
+      dependencies: ['setup'],
+      testMatch: /tests[\\/](tier2|tier3)[\\/]/,
+    },
+  ],
 });
